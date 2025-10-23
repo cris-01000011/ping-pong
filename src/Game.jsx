@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react";
+import PopupOptions from "./PopupOptions";
 
 export default function Game() {
+  const [popupIsOpen, setPopupIsOpen] = useState(false);
+
   const sceneRef = useRef(null);
   const [sceneWidth, setSceneWidth] = useState(0);  // Width game scene
   const [sceneHeight, setSceneHeight] = useState(0); // Height game scene
@@ -16,7 +19,8 @@ export default function Game() {
   const [axisY, setAxisY] = useState(0); // CircleStepY
   const [axisXSpeed, setAxisXSpeed] = useState(10); // CircleStepX
   const [axisYSpeed, setAxisYSpeed] = useState(2); // CircleStepY
-  const [ballFrames, setBallFrames] = useState(10); // CircleStepY
+  const [barMoveSpeed, setBarMoveSpeed] = useState(5); // Bars move speed
+  const [ballFrames, setBallFrames] = useState(10); // Ball refresh
 
   const [barRightY, setBarRightY] = useState(0); // Bar direction Y
   const [barLeftY, setBarLeftY] = useState(0); // Bar direction Y
@@ -76,12 +80,12 @@ export default function Game() {
       if (axisY > (barRightY - (sceneHeight) / 100) && axisY < (barRightY + (sceneHeight) / 100)) {
         setAxisYSpeed(0);
         setAxisXSpeed(10);
-      } else if (axisY > (barRightY - (7.25 * sceneHeight) / 100) && axisY < (barRightY + (7.25 * sceneHeight) / 100)) {
+      } else if (axisY > (barRightY - (9.5 * sceneHeight) / 100) && axisY < (barRightY + (9.5 * sceneHeight) / 100)) {
         setAxisYSpeed(1);
-        setAxisXSpeed(10);
+        setAxisXSpeed(12);
       } else {
         setAxisYSpeed(4);
-        setAxisXSpeed(20);
+        setAxisXSpeed(17);
       }
 
       // Change direction of circleY dependig if the bounce is in the top or bottom of the bar
@@ -104,12 +108,12 @@ export default function Game() {
       if (axisY > (barLeftY - (sceneHeight) / 100) && axisY < (barLeftY + (sceneHeight) / 100)) {
         setAxisYSpeed(0);
         setAxisXSpeed(10);
-      } else if (axisY > (barLeftY - (7.25 * sceneHeight) / 100) && axisY < (barLeftY + (7.25 * sceneHeight) / 100)) {
+      } else if (axisY > (barLeftY - (9.5 * sceneHeight) / 100) && axisY < (barLeftY + (9.5 * sceneHeight) / 100)) {
         setAxisYSpeed(1);
-        setAxisXSpeed(10);
+        setAxisXSpeed(12);
       } else {
         setAxisYSpeed(4);
-        setAxisXSpeed(20);
+        setAxisXSpeed(17);
       }
 
       // Change direction of circleY dependig if the bounce is in the top or bottom of the bar
@@ -141,10 +145,9 @@ export default function Game() {
       keysPressed.current[e.key] = false;
     };
 
-    const update = () => {
-      const moveSpeed = 5;
+    const moveBars = () => {
       if (keysPressed.current["ArrowUp"] && barRightYRef.current > sceneHeightLimitTop) {
-        if ((barRightY - moveSpeed) < sceneHeightLimitTop) {
+        if ((barRightY - barMoveSpeed) < sceneHeightLimitTop) {
           setBarRightY(prev => {
             const newY = prev - ((sceneHeightLimitTop - barRightY) * -1);
             barRightYRef.current = newY;
@@ -152,14 +155,14 @@ export default function Game() {
           });
         } else {
           setBarRightY(prev => {
-            const newY = prev - moveSpeed;
+            const newY = prev - barMoveSpeed;
             barRightYRef.current = newY;
             return newY;
           });
         }
       }
       if (keysPressed.current["ArrowDown"] && barRightYRef.current < sceneHeightLimitBottom) {
-        if ((barRightY + moveSpeed) > (sceneHeightLimitTop * -1)) {
+        if ((barRightY + barMoveSpeed) > (sceneHeightLimitTop * -1)) {
           setBarRightY(prev => {
             const newY = prev + ((sceneHeightLimitTop * -1) - barRightY);
             barRightYRef.current = newY;
@@ -167,7 +170,7 @@ export default function Game() {
           });
         } else {
           setBarRightY(prev => {
-            const newY = prev + moveSpeed;
+            const newY = prev + barMoveSpeed;
             barRightYRef.current = newY;
             return newY;
           });
@@ -175,7 +178,7 @@ export default function Game() {
       }
 
       if (keysPressed.current["w"] && barLeftYRef.current > sceneHeightLimitTop) {
-        if ((barLeftY - moveSpeed) < sceneHeightLimitTop) {
+        if ((barLeftY - barMoveSpeed) < sceneHeightLimitTop) {
           setBarLeftY(prev => {
             const newY = prev - ((sceneHeightLimitTop - barLeftY) * -1);
             barLeftYRef.current = newY;
@@ -183,14 +186,14 @@ export default function Game() {
           });
         } else {
           setBarLeftY(prev => {
-            const newY = prev - moveSpeed;
+            const newY = prev - barMoveSpeed;
             barLeftYRef.current = newY;
             return newY;
           });
         }
       }
       if (keysPressed.current["s"] && barLeftYRef.current < sceneHeightLimitBottom) {
-        if ((barLeftY + moveSpeed) > (sceneHeightLimitTop * -1)) {
+        if ((barLeftY + barMoveSpeed) > (sceneHeightLimitTop * -1)) {
           setBarLeftY(prev => {
             const newY = prev + ((sceneHeightLimitTop * -1) - barLeftY);
             barLeftYRef.current = newY;
@@ -198,30 +201,32 @@ export default function Game() {
           });
         } else {
           setBarLeftY(prev => {
-            const newY = prev + moveSpeed;
+            const newY = prev + barMoveSpeed;
             barLeftYRef.current = newY;
             return newY;
           });
         }
       }
 
-      if (keysPressed.current[" "] && onGameOverRef.current) {
-        StartGame();
-      }
+      if (keysPressed.current[" "] && onGameOverRef.current)
+        return StartGame();
+      
+      if (keysPressed.current["o"])
+        return setPopupIsOpen(true);
 
-      animationFrameId.current = requestAnimationFrame(update);
+      animationFrameId.current = requestAnimationFrame(moveBars);
     };
 
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
-    animationFrameId.current = requestAnimationFrame(update);
+    animationFrameId.current = requestAnimationFrame(moveBars);
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
       cancelAnimationFrame(animationFrameId.current);
     };
-  }, [barRightY, barLeftY, sceneHeightLimitTop, sceneHeightLimitBottom, onGameOver]);
+  }, [barRightY, barLeftY, sceneHeightLimitTop, sceneHeightLimitBottom, onGameOver, popupIsOpen]);
 
   const StartGame = () => {
     setOnGameOver(false);
@@ -244,6 +249,11 @@ export default function Game() {
       ref={sceneRef}
       className="text-[#cdd6f4] flex items-center justify-center w-full h-full relative select-none"
     >
+      <PopupOptions
+        popupIsOpen={popupIsOpen}
+        onClose={() => setPopupIsOpen(false)}
+      />
+
       {/* Info */}
       <div className={`${onGameOver ? "hidden lg:block aboslute flex flex-col text-center mt-24 font-bold animate-pulse" : "hidden"}`}>
         <div>START GAME [SPACE]</div>
