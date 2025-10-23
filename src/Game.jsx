@@ -14,7 +14,9 @@ export default function Game() {
   const [circleDirectionY, setCircleDirectionY] = useState(0); // 0: Top, 1: Bottom
   const [axisX, setAxisX] = useState(0); // CircleStepX
   const [axisY, setAxisY] = useState(0); // CircleStepY
+  const [axisXSpeed, setAxisXSpeed] = useState(10); // CircleStepX
   const [axisYSpeed, setAxisYSpeed] = useState(2); // CircleStepY
+  const [ballFrames, setBallFrames] = useState(10); // CircleStepY
 
   const [barRightY, setBarRightY] = useState(0); // Bar direction Y
   const [barLeftY, setBarLeftY] = useState(0); // Bar direction Y
@@ -41,14 +43,16 @@ export default function Game() {
       setSceneHeightLimitTop(heightLimitTop); // Set top limit to move bars
       setSceneHeightLimitBottom(heightLimitBottom); // Set bottom limit to move bars
     }
+  }, [])
 
+  useEffect(() => {
     const timer = setTimeout(() => {
-      if (onGameOver) { return }
+      if (onGameOver) return;
 
       if (circleDirectionX === 0) {
-        setAxisX((prev) => prev - 10); // Direction right 
+        setAxisX((prev) => prev - axisXSpeed); // Direction right
       } else {
-        setAxisX((prev) => prev + 10); // Direction left
+        setAxisX((prev) => prev + axisXSpeed); // Direction left
       }
 
       if (circleDirectionY === 0) {
@@ -56,25 +60,28 @@ export default function Game() {
       } else {
         setAxisY((prev) => prev + axisYSpeed); // Direction bottom
       }
-    }, 10);
+    }, ballFrames);
 
     return () => clearTimeout(timer);
-  }, [axisX]);
+  }, [axisX, axisY]);
 
   useEffect(() => {
-    if (onGameOver) { return }
+    if (onGameOver) return;
 
     // axisX > width game scene right && circle is in the same position than the right bar
-    if (axisX > (sceneWidth / 2) - 20 && axisY > (barRightY - (12.5 * sceneHeight) / 100) && axisY < (barRightY + (12.5 * sceneHeight) / 100)) {
-      setCircleDirectionX(0); // Change direction ball to left
+    if (axisX > (sceneWidth / 2) - 25 && axisY > (barRightY - (12.5 * sceneHeight) / 100) && axisY < (barRightY + (12.5 * sceneHeight) / 100)) {
+      setCircleDirectionX(0); // Change direction ball to left-0
 
       // Change velocity depending of ubication of bar bounce
-      if (axisY > (barRightY - (1 * sceneHeight) / 100) && axisY < (barRightY + (1 * sceneHeight) / 100)) {
+      if (axisY > (barRightY - (sceneHeight) / 100) && axisY < (barRightY + (sceneHeight) / 100)) {
         setAxisYSpeed(0);
+        setAxisXSpeed(10);
       } else if (axisY > (barRightY - (7.25 * sceneHeight) / 100) && axisY < (barRightY + (7.25 * sceneHeight) / 100)) {
         setAxisYSpeed(1);
+        setAxisXSpeed(10);
       } else {
         setAxisYSpeed(4);
+        setAxisXSpeed(20);
       }
 
       // Change direction of circleY dependig if the bounce is in the top or bottom of the bar
@@ -86,19 +93,23 @@ export default function Game() {
     } else if (axisX > (sceneWidth / 2)) {
       setLeftPoints((prev) => prev + 1); // Left +1 Point
       GameOver();
+      return;
     }
 
     // axisX > width game scene left && circle is in the same position than the left bar
-    if (axisX < ((sceneWidth / 2) * -1) + 20 && axisY > (barLeftY - (12.5 * sceneHeight) / 100) && axisY < (barLeftY + (12.5 * sceneHeight) / 100)) {
+    if (axisX < ((sceneWidth / 2) * -1) + 25 && axisY > (barLeftY - (12.5 * sceneHeight) / 100) && axisY < (barLeftY + (12.5 * sceneHeight) / 100)) {
       setCircleDirectionX(1); // Change direction ball to right
 
       // Change velocity depending of ubication of bar bounce
-      if (axisY > (barLeftY - (1 * sceneHeight) / 100) && axisY < (barLeftY + (1 * sceneHeight) / 100)) {
+      if (axisY > (barLeftY - (sceneHeight) / 100) && axisY < (barLeftY + (sceneHeight) / 100)) {
         setAxisYSpeed(0);
+        setAxisXSpeed(10);
       } else if (axisY > (barLeftY - (7.25 * sceneHeight) / 100) && axisY < (barLeftY + (7.25 * sceneHeight) / 100)) {
         setAxisYSpeed(1);
+        setAxisXSpeed(10);
       } else {
         setAxisYSpeed(4);
+        setAxisXSpeed(20);
       }
 
       // Change direction of circleY dependig if the bounce is in the top or bottom of the bar
@@ -110,6 +121,7 @@ export default function Game() {
     } else if (axisX < ((sceneWidth / 2) * -1)) {
       setRightPoints((prev) => prev + 1); // Right +1 point
       GameOver();
+      return;
     }
 
     // axisY < or > height game scene - or + 5px
@@ -129,7 +141,7 @@ export default function Game() {
       keysPressed.current[e.key] = false;
     };
 
-    const update = (e) => {
+    const update = () => {
       const moveSpeed = 5;
       if (keysPressed.current["ArrowUp"] && barRightYRef.current > sceneHeightLimitTop) {
         if ((barRightY - moveSpeed) < sceneHeightLimitTop) {
