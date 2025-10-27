@@ -37,16 +37,28 @@ export default function Game() {
   useEffect(() => { onGameOverRef.current = onGameOver }, [onGameOver]);
 
   useEffect(() => {
-    if (sceneRef.current) {
-      setSceneWidth(sceneRef.current.offsetWidth); // Set area game width
-      setSceneHeight(sceneRef.current.offsetHeight); // Set area game height
+    const updateSceneDimensions = () => {
+      if (sceneRef.current) {
+        setSceneWidth(sceneRef.current.offsetWidth);
+        setSceneHeight(sceneRef.current.offsetHeight);
 
-      // Limt to set bars, height bars is 25%, posisition center, then of center to top or bottom we move n px in y to: limit - (heightLimitTop or heightLimitBottom)  
-      const heightLimitTop = ((sceneRef.current.offsetHeight - (62.5 * sceneRef.current.offsetHeight) / 100) * -1); // Areagame - (62.5%AreaGame) * -1 
-      const heightLimitBottom = ((sceneRef.current.offsetHeight - (62.5 * sceneRef.current.offsetHeight) / 100)); // Areagame - (62.5%AreaGame)
-      setSceneHeightLimitTop(heightLimitTop); // Set top limit to move bars
-      setSceneHeightLimitBottom(heightLimitBottom); // Set bottom limit to move bars
-    }
+        const heightLimitTop =
+          (sceneRef.current.offsetHeight - (62.5 * sceneRef.current.offsetHeight) / 100) * -1;
+        const heightLimitBottom =
+          sceneRef.current.offsetHeight - (62.5 * sceneRef.current.offsetHeight) / 100;
+
+        setSceneHeightLimitTop(heightLimitTop);
+        setSceneHeightLimitBottom(heightLimitBottom);
+      }
+    };
+
+    updateSceneDimensions();
+
+    window.addEventListener("resize", updateSceneDimensions);
+
+    return () => {
+      window.removeEventListener("resize", updateSceneDimensions);
+    };
   }, [])
 
   useEffect(() => {
@@ -252,15 +264,31 @@ export default function Game() {
       <PopupOptions
         popupIsOpen={popupIsOpen}
         onClose={() => setPopupIsOpen(false)}
+        axisXSpeed={axisXSpeed}
+        setAxisXSpeed={setAxisXSpeed}
+        axisYSpeed={axisYSpeed}
+        setAxisYSpeed={setAxisYSpeed}
+        barMoveSpeed={barMoveSpeed}
+        setBarMoveSpeed={setBarMoveSpeed}
+        ballFrames={ballFrames}
+        setBallFrames={setBallFrames}
       />
 
-      {/* Info */}
+      {/* Start/Options */}
       <div className={`${onGameOver ? "hidden lg:block aboslute flex flex-col text-center mt-24 font-bold animate-pulse" : "hidden"}`}>
         <div>START GAME [SPACE]</div>
         <div>OPTIONS [O]</div>
       </div>
-      <button onClick={StartGame} className={`${onGameOver ? "absolute lg:hidden bg-black/10 dark:bg-[#45475a] px-2 py-1 rounded-md mt-16 font-bold animate-pulse cursor-pointer" : "hidden"}`}>START</button>
       
+      <div className={`${onGameOver ? "block lg:hidden aboslute flex flex-col gap-2 text-center mt-32 font-bold" : "hidden"}`}>
+        <button onClick={StartGame} className="bg-[#45475a] px-2 py-1 rounded-md cursor-pointer">
+          Start
+        </button>
+        <button onClick={() => setPopupIsOpen(true)} className="bg-[#45475a] px-2 py-1 rounded-md cursor-pointer">
+          Options
+        </button>
+      </div>
+
       {/* Ball */}
       <div
         className="absolute bg-[#585b70] w-4 h-4 rounded-full"
