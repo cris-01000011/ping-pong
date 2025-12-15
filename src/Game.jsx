@@ -18,7 +18,9 @@ export default function Game() {
 	const [axisX, setAxisX] = useState(0); // CircleStepX
 	const [axisY, setAxisY] = useState(0); // CircleStepY
 	const [axisXSpeed, setAxisXSpeed] = useState(10); // CircleStepX
+	const [axisXSpeedInGame, setAxisXSpeedInGame] = useState(10); // CircleStepX
 	const [axisYSpeed, setAxisYSpeed] = useState(2); // CircleStepY
+	const [axisYSpeedInGame, setAxisYSpeedInGame] = useState(2); // CircleStepY
 	const [barMoveSpeed, setBarMoveSpeed] = useState(5); // Bars move speed
 	const [ballFrames, setBallFrames] = useState(10); // Ball refresh
 
@@ -106,17 +108,14 @@ export default function Game() {
 				axisY > barRightY - sceneHeight / 100 &&
 				axisY < barRightY + sceneHeight / 100
 			) {
-				setAxisYSpeed(0);
-				setAxisXSpeed(10);
+				setAxisXSpeed(axisXSpeedInGame - 1);
 			} else if (
 				axisY > barRightY - (9.5 * sceneHeight) / 100 &&
 				axisY < barRightY + (9.5 * sceneHeight) / 100
 			) {
-				setAxisYSpeed(1);
-				setAxisXSpeed(12);
+				setAxisXSpeed(axisXSpeedInGame);
 			} else {
-				setAxisYSpeed(4);
-				setAxisXSpeed(17);
+				setAxisXSpeed(axisXSpeedInGame + 1);
 			}
 
 			// Change direction of circleY dependig if the bounce is in the top or bottom of the bar
@@ -147,17 +146,14 @@ export default function Game() {
 				axisY > barLeftY - sceneHeight / 100 &&
 				axisY < barLeftY + sceneHeight / 100
 			) {
-				setAxisYSpeed(0);
-				setAxisXSpeed(10);
+				setAxisXSpeed(axisXSpeedInGame - 1);
 			} else if (
 				axisY > barLeftY - (9.5 * sceneHeight) / 100 &&
 				axisY < barLeftY + (9.5 * sceneHeight) / 100
 			) {
-				setAxisYSpeed(1);
-				setAxisXSpeed(12);
+				setAxisXSpeed(axisXSpeedInGame);
 			} else {
-				setAxisYSpeed(4);
-				setAxisXSpeed(17);
+				setAxisXSpeed(axisXSpeedInGame + 1);
 			}
 
 			// Change direction of circleY dependig if the bounce is in the top or bottom of the bar
@@ -318,8 +314,10 @@ export default function Game() {
 				onClose={() => setPopupIsOpen(false)}
 				axisXSpeed={axisXSpeed}
 				setAxisXSpeed={setAxisXSpeed}
+				setAxisXSpeedInGame={setAxisXSpeedInGame}
 				axisYSpeed={axisYSpeed}
 				setAxisYSpeed={setAxisYSpeed}
+				setAxisYSpeedInGame={setAxisYSpeedInGame}
 				barMoveSpeed={barMoveSpeed}
 				setBarMoveSpeed={setBarMoveSpeed}
 				ballFrames={ballFrames}
